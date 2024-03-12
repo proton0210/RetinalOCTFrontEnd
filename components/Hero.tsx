@@ -1,3 +1,5 @@
+"use client";
+
 import { descriptionText, titleText } from "@/constants/text";
 import Image from "next/image";
 import { Button } from "./ui/button";
@@ -25,12 +27,7 @@ export default function Hero() {
       </div>
       <div className="flex-center mt-20">
         <Link href="/product">
-          <Button
-            className="primary-gradient font-semibold font-sans  text-white
-            transition duration-0 hover:duration-150
-            rounded-md
-          "
-          >
+          <Button className="primary-gradient w-[150px] font-semibold font-sans text-white rounded-md hover:shadow-md hover:shadow-indigo-500/50">
             Get Started
           </Button>
         </Link>
