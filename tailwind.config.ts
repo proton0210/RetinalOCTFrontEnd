@@ -60,6 +60,8 @@ module.exports = {
           800: "#580A94",
           900: "#44056E",
         },
+        "gradient-start": "#690CB0",
+        "gradient-end": "#F364A2",
       },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
