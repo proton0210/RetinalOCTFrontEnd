@@ -1,4 +1,5 @@
 import Hero from "@/components/Hero";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
         </div>
         <div className="mx-auto w-full max-w-5xl mt-20">
           <Hero />
+          
         </div>
       </div>
       <div

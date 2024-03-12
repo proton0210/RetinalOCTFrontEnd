@@ -18,13 +18,7 @@
   .text-gradient {
     @apply bg-gradient-to-r from-gradient-start to-gradient-end bg-clip-text text-transparent;
   }
-
-  .bg-gradient-to-top {
-    background-image: linear-gradient(
-      to top,
-      #fdcbf1 0%,
-      #fdcbf1 1%,
-      #e6dee9 100%
-    );
+  .primary-gradient {
+    background: linear-gradient(129deg, #690cb0 0%, #f364a2 100%);
   }
 }
