@@ -55,22 +55,39 @@ export async function POST(req: Request) {
   const eventType = evt.type;
 
   console.log({ eventType });
+  // write this block by yourself
+  try {
+    // ... (existing code)
 
-  if (eventType === "user.created") {
-    const { id, email_addresses, image_url, username, first_name, last_name } =
-      evt.data;
+    if (eventType === "user.created") {
+      const {
+        id,
+        email_addresses,
+        image_url,
+        username,
+        first_name,
+        last_name,
+      } = evt.data;
 
-    // Create a new user in your database
-    const mongoUser = await createUser({
-      clerkId: id,
-      name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
-      username: username!,
-      email: email_addresses[0].email_address,
-      picture: image_url,
-    });
+      try {
+        console.log("Creating user...");
+        const user = await createUser({
+          clerkId: id,
+          name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
+          username: username!,
+          email: email_addresses[0].email_address,
+          picture: image_url,
+        });
+        return NextResponse.json({ message: "OK", user: user });
+      } catch (err) {
+        console.error("Error creating user:", err);
+        return new Response("Error creating user", { status: 500 });
+      }
+    }
 
-    return NextResponse.json({ message: "OK", user: mongoUser });
+    return new Response("", { status: 201 });
+  } catch (err) {
+    console.error("Error in API route:", err);
+    return new Response("Internal Server Error", { status: 500 });
   }
-
-  return new Response("", { status: 201 });
 }

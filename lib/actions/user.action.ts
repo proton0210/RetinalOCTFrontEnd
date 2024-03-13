@@ -1,10 +1,5 @@
 "use server";
-import {
-  DynamoDBClient,
-  PutItemCommand,
-  UpdateItemCommand,
-  DeleteItemCommand,
-} from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 
 export const createUser = async ({
