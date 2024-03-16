@@ -5,6 +5,8 @@ const nextConfig = {
     serverComponentsExternalPackages: [
       "@aws-sdk/client-dynamodb",
       "@aws-sdk/util-dynamodb",
+      "@aws-sdk/client-s3",
+      "sharp",
     ],
   },
   images: {
