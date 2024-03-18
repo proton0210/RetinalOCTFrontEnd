@@ -3,6 +3,8 @@
 import { useFormState } from "react-dom";
 import { uploadFileWrapper } from "@/lib/actions/image.action";
 import { SubmitButton } from "./submit-button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@radix-ui/react-label";
 
 type uploadFormProps = {
   ClerkID: string;
@@ -23,8 +25,13 @@ export function UploadForm({ ClerkID }: uploadFormProps) {
           formAction({ formData, ClerkID });
         }}
       >
-        <input type="file" id="file" name="file" accept="images/*" />
-        <SubmitButton />
+        <div className="grid w-full max-w-sm items-center gap-1.5 font-sans">
+          <Label htmlFor="file">File</Label>
+          <Input type="file" id="file" name="file" accept="images/*" />
+        </div>
+        <div className="mt-4">
+          <SubmitButton />
+        </div>
       </form>
       {state?.status && (
         <div className={`state-message ${state?.status}`}>{state?.message}</div>

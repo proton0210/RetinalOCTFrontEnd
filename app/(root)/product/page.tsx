@@ -4,12 +4,14 @@ import { redirect } from "next/navigation";
 
 export default async function Page() {
   const { userId } = auth();
-  if (!userId) redirect("/sign-in");
+  if (!userId) redirect("/");
 
   return (
     <>
-      <h1>Upload Files to S3 Bucket</h1>
-      <UploadForm ClerkID={userId} />
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h1 className="text-lg font-sans">Upload Files to S3 Bucket</h1>
+        <UploadForm ClerkID={userId} />
+      </div>
     </>
   );
 }
