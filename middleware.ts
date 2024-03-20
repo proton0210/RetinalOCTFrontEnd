@@ -3,7 +3,7 @@ import { redirect } from "@clerk/nextjs/server";
 
 export default authMiddleware({
   publicRoutes: ["/", "/about"],
-  ignoredRoutes: ["/api/webhook"],
+  ignoredRoutes: ["/api/webhook", "/api/getproducts"],
 });
 
 export const config = {

@@ -2,9 +2,10 @@
 
 import { useFormState } from "react-dom";
 import { uploadFileWrapper } from "@/lib/actions/image.action";
-import { SubmitButton } from "./submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 type uploadFormProps = {
   ClerkID: string;
@@ -12,30 +13,46 @@ type uploadFormProps = {
 const initialState = { status: "", message: "" };
 
 export function UploadForm({ ClerkID }: uploadFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [state, formAction] = useFormState(uploadFileWrapper, initialState);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    setIsSubmitting(true);
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    formData.append("file", e.currentTarget.file.files![0]);
+
+    try {
+      await formAction({ formData, ClerkID });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="form-wrapper">
-      <form
-        action={formAction}
-        onSubmit={(e) => {
-          e.preventDefault();
-          const formData = new FormData(e.currentTarget);
-          formData.append("file", e.currentTarget.file.files![0]);
-          formAction({ formData, ClerkID });
-        }}
-      >
-        <div className="grid w-full max-w-sm items-center gap-1.5 font-sans">
+      <form onSubmit={handleSubmit}>
+        <div className="grid w-full max-w-sm items-center gap-1.5 font-sans mb-4">
           <Label htmlFor="file">File</Label>
           <Input type="file" id="file" name="file" accept="images/*" />
         </div>
-        <div className="mt-4">
-          <SubmitButton />
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            className="primary-gradient w-[120px] h-10 font-semibold font-sans text-white rounded-md hover:shadow-md cursor-pointer hover:shadow-indigo-500/50"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
         </div>
+        {state?.status && (
+          <div className={`state-message ${state?.status}`}>
+            {state?.message}
+          </div>
+        )}
       </form>
-      {state?.status && (
-        <div className={`state-message ${state?.status}`}>{state?.message}</div>
-      )}
     </div>
   );
 }
