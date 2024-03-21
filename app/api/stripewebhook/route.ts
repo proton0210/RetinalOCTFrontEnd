@@ -1,17 +1,28 @@
 import Stripe from "stripe";
 import { headers } from "next/headers";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+import getRawBody from "raw-body";
+import { IncomingMessage } from "http";
 
 export async function POST(req: Request) {
-  const body = await req.text();
+  const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+  if (!STRIPE_SECRET_KEY) {
+    throw new Error("Please add STRIPE_SECRET_KEY to .env");
+  }
+  const stripe = new Stripe(STRIPE_SECRET_KEY, {
+    apiVersion: "2023-10-16",
+  });
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    throw new Error("Please add STRIPE_WEBHOOK_SECRET to .env");
+  }
+
+  const rawBody = await getRawBody(req.body as unknown as IncomingMessage);
   const sig = headers().get("Stripe-Signature") as string;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
   let event: Stripe.Event;
 
   try {
     if (!sig || !webhookSecret) return;
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
+    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err: any) {
     console.log(`❌ Error message: ${err.message}`);
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
