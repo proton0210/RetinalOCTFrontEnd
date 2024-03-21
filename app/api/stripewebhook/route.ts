@@ -13,12 +13,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 });
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(req: NextRequest) {
   if (req === null)
     throw new Error(`Missing userId or request`, { cause: { req } });
@@ -62,6 +56,10 @@ export async function POST(req: NextRequest) {
           },
         }
       );
+      const customerId = session.metadata!.userId as string;
+      const amount = session.amount_total || 0;
+
+      await updateUserCredits(customerId, amount);
 
       break;
     default:
@@ -72,14 +70,21 @@ export async function POST(req: NextRequest) {
 }
 
 async function updateUserCredits(customerId: string, amount: number) {
-  const params = {
+  const amountMapping: { [key: string]: number } = {
+    "5": 5,
+    "25": 40,
+    "49": 99,
+  };
+  const credits = amountMapping[amount.toString()] || 0; // Ensure credits fallbacks to 0 if not found
+  console.log(credits);
+  const params: AWS.DynamoDB.DocumentClient.UpdateItemInput = {
     TableName: "Users",
     Key: {
       ClerkID: customerId,
     },
     UpdateExpression: "SET Credits = Credits + :val",
     ExpressionAttributeValues: {
-      ":val": amount,
+      ":val": credits,
     },
     ReturnValues: "UPDATED_NEW",
   };
