@@ -16,6 +16,7 @@ export async function POST(request: Request) {
   // Extract the priceId and clerkId from the request body
   const { userId } = auth();
   const { priceId } = data;
+  const currentUrl = request.headers.get("origin") || null;
 
   const session = await stripe.checkout.sessions.create({
     line_items: [
@@ -25,10 +26,10 @@ export async function POST(request: Request) {
       },
     ],
     mode: "payment",
-    success_url: "http://localhost:3000",
-    cancel_url: "http://localhost:3000",
+    success_url: `${currentUrl}/product`, // Use the current URL for success_url
+    cancel_url: `${currentUrl}/product`,
     metadata: {
-      userId, // Pass the Clerk ID as part of the session metadata
+      userId,
     },
   });
 
