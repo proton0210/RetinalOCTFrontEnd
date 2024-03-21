@@ -16,11 +16,16 @@ export async function POST(req: Request) {
     console.log(`❌ Error message: ${err.message}`);
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
+  console.log("Event Fired");
+
+  console.log(event);
 
   try {
     switch (event.type) {
       case "payment_intent.succeeded":
         // Add Credits to The  User
+        console.log(`✅ Success: ${event.id} ${event.type}`);
+
         break;
       case "product.updated":
         break;
