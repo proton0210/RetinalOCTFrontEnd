@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-  const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+  const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY as string;
   if (!STRIPE_SECRET_KEY) {
     throw new Error("Please add STRIPE_SECRET_KEY to .env");
   }

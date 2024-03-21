@@ -1,5 +1,4 @@
 "use client";
-import { auth } from "@clerk/nextjs";
 
 import React from "react";
 import { useEffect, useState } from "react";
@@ -7,9 +6,11 @@ import axios from "axios";
 import { Price } from "@/types";
 import { Button } from "./ui/button";
 
-export default function Pricing() {
-  const { userId } = auth();
+interface PricingProps {
+  clerkId: string;
+}
 
+export default function Pricing({ clerkId }: PricingProps) {
   const [prices, setPrices] = useState([]);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export default function Pricing() {
       "/api/payment",
       {
         priceId: id,
-        clerkId: userId,
+        clerkId: clerkId,
       },
       {
         headers: {
