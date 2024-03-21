@@ -1,54 +1,66 @@
+import { clerkClient } from "@clerk/nextjs";
+import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { headers } from "next/headers";
-import getRawBody from "raw-body";
-import { IncomingMessage } from "http";
 
-export async function POST(req: Request) {
-  const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-  if (!STRIPE_SECRET_KEY) {
-    throw new Error("Please add STRIPE_SECRET_KEY to .env");
-  }
-  const stripe = new Stripe(STRIPE_SECRET_KEY, {
-    apiVersion: "2023-10-16",
-  });
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!webhookSecret) {
-    throw new Error("Please add STRIPE_WEBHOOK_SECRET to .env");
-  }
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: "2023-10-16",
+});
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
 
-  const rawBody = await getRawBody(req.body as unknown as IncomingMessage);
-  const sig = headers().get("Stripe-Signature") as string;
-  let event: Stripe.Event;
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
+export async function POST(req: NextRequest) {
+  if (req === null)
+    throw new Error(`Missing userId or request`, { cause: { req } });
+
+  const stripeSignature = req.headers.get("stripe-signature");
+
+  if (stripeSignature === null) throw new Error("stripeSignature is null");
+
+  let event;
   try {
-    if (!sig || !webhookSecret) return;
-    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
-  } catch (err: any) {
-    console.log(`❌ Error message: ${err.message}`);
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
-  }
-  console.log("Event Fired");
-
-  console.log(event);
-
-  try {
-    switch (event.type) {
-      case "payment_intent.succeeded":
-        // Add Credits to The  User
-        console.log(`✅ Success: ${event.id} ${event.type}`);
-
-        break;
-      case "product.updated":
-        break;
-      default:
-        throw new Error("Unhandled relevant event!");
-    }
+    event = stripe.webhooks.constructEvent(
+      await req.text(),
+      stripeSignature,
+      webhookSecret
+    );
   } catch (error) {
-    console.log(error);
-    return new Response("Webhook handler failed. View logs.", {
-      status: 400,
-    });
+    if (error instanceof Error)
+      return NextResponse.json(
+        {
+          error: error.message,
+        },
+        {
+          status: 400,
+        }
+      );
   }
 
-  return new Response(JSON.stringify({ received: true }));
+  if (event === undefined) throw new Error(`event is undefined`);
+  switch (event.type) {
+    case "checkout.session.completed":
+      const session = event.data.object;
+      console.log(`Payment successful for session ID: ${session.id}`);
+      clerkClient.users.updateUserMetadata(
+        event.data.object.metadata?.userId as string,
+        {
+          publicMetadata: {
+            stripe: {
+              status: session.status,
+              payment: session.payment_status,
+            },
+          },
+        }
+      );
+
+      break;
+    default:
+      console.warn(`Unhandled event type: ${event.type}`);
+  }
+
+  NextResponse.json({ status: 200, message: "success" });
 }

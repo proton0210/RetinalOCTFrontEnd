@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs";
 
 export async function POST(request: Request) {
   const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
@@ -13,9 +14,8 @@ export async function POST(request: Request) {
   console.log("Request data:", data);
 
   // Extract the priceId and clerkId from the request body
-  const { priceId, clerkId } = data;
-  console.log("Received priceId:", priceId);
-  console.log("Received clerkId:", clerkId);
+  const { userId } = auth();
+  const { priceId } = data;
 
   const session = await stripe.checkout.sessions.create({
     line_items: [
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     success_url: "http://localhost:3000",
     cancel_url: "http://localhost:3000",
     metadata: {
-      userId: clerkId, // Pass the Clerk ID as part of the session metadata
+      userId, // Pass the Clerk ID as part of the session metadata
     },
   });
 

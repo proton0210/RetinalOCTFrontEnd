@@ -6,11 +6,7 @@ import axios from "axios";
 import { Price } from "@/types";
 import { Button } from "./ui/button";
 
-interface PricingProps {
-  clerkId: string;
-}
-
-export default function Pricing({ clerkId }: PricingProps) {
+export default function Pricing() {
   const [prices, setPrices] = useState([]);
 
   useEffect(() => {
@@ -30,7 +26,6 @@ export default function Pricing({ clerkId }: PricingProps) {
       "/api/payment",
       {
         priceId: id,
-        clerkId: clerkId,
       },
       {
         headers: {
