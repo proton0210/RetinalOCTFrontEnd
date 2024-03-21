@@ -2,7 +2,11 @@ import Stripe from "stripe";
 import { NextResponse, NextRequest } from "next/server";
 
 export async function POST(request: Request) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+  if (!STRIPE_SECRET_KEY) {
+    throw new Error("Please add STRIPE_SECRET_KEY to .env");
+  }
+  const stripe = new Stripe(STRIPE_SECRET_KEY);
   let data = await request.json();
   let priceId = data.priceId;
   const session = await stripe.checkout.sessions.create({
@@ -10,9 +14,7 @@ export async function POST(request: Request) {
       {
         price: priceId,
         quantity: 1,
-        
       },
-      
     ],
     mode: "payment",
     success_url: "http://localhost:3000",
