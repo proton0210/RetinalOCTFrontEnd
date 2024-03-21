@@ -1,7 +1,13 @@
 import { clerkClient } from "@clerk/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import AWS from "aws-sdk";
 
+const dynamodb = new AWS.DynamoDB.DocumentClient({
+  region: process.env.AWS_REGION!,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+  secretAccessKey: process.env.STRIPE_WEBHOOK_SECRET!,
+});
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
 });
@@ -62,5 +68,26 @@ export async function POST(req: NextRequest) {
       console.warn(`Unhandled event type: ${event.type}`);
   }
 
-  NextResponse.json({ status: 200, message: "success" });
+  return NextResponse.json({ status: 200, message: "success" });
+}
+
+async function updateUserCredits(customerId: string, amount: number) {
+  const params = {
+    TableName: "Users",
+    Key: {
+      ClerkID: customerId,
+    },
+    UpdateExpression: "SET Credits = Credits + :val",
+    ExpressionAttributeValues: {
+      ":val": amount,
+    },
+    ReturnValues: "UPDATED_NEW",
+  };
+
+  try {
+    const result = await dynamodb.update(params).promise();
+    console.log("Credits updated successfully:", result);
+  } catch (error) {
+    console.error("Error updating credits:", error);
+  }
 }
