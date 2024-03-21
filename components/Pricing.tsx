@@ -1,4 +1,5 @@
 "use client";
+import { auth } from "@clerk/nextjs";
 
 import React from "react";
 import { useEffect, useState } from "react";
@@ -7,6 +8,8 @@ import { Price } from "@/types";
 import { Button } from "./ui/button";
 
 export default function Pricing() {
+  const { userId } = auth();
+
   const [prices, setPrices] = useState([]);
 
   useEffect(() => {
@@ -26,6 +29,7 @@ export default function Pricing() {
       "/api/payment",
       {
         priceId: id,
+        clerkId: userId,
       },
       {
         headers: {

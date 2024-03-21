@@ -30,6 +30,7 @@ export const createUser = async ({
       Username: username,
       Email: email,
       Picture: picture,
+      Credits: 2,
     }),
   };
 
@@ -39,3 +40,5 @@ export const createUser = async ({
     throw err;
   }
 };
+
+export const constUpdateUserCredits = async () => {};

@@ -10,7 +10,9 @@ export async function POST(request: Request) {
       {
         price: priceId,
         quantity: 1,
+        
       },
+      
     ],
     mode: "payment",
     success_url: "http://localhost:3000",
