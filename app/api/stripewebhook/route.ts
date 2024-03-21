@@ -2,11 +2,14 @@ import { clerkClient } from "@clerk/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import AWS from "aws-sdk";
+import { DynamoDBClient, UpdateItemCommand, UpdateItemCommandInput } from "@aws-sdk/client-dynamodb";
 
-const dynamodb = new AWS.DynamoDB.DocumentClient({
+const dynamodb = new DynamoDBClient({
   region: process.env.AWS_REGION!,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-  secretAccessKey: process.env.STRIPE_WEBHOOK_SECRET!,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
 });
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -69,30 +72,33 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ status: 200, message: "success" });
 }
 
-async function updateUserCredits(customerId: string, amount: number) {
-  const amountMapping: { [key: string]: number } = {
-    "5": 5,
-    "25": 40,
-    "49": 99,
-  };
-  const credits = amountMapping[amount.toString()] || 0; // Ensure credits fallbacks to 0 if not found
-  console.log(credits);
-  const params: AWS.DynamoDB.DocumentClient.UpdateItemInput = {
-    TableName: "Users",
-    Key: {
-      ClerkID: customerId,
-    },
-    UpdateExpression: "SET Credits = Credits + :val",
-    ExpressionAttributeValues: {
-      ":val": credits,
-    },
-    ReturnValues: "UPDATED_NEW",
-  };
-
-  try {
-    const result = await dynamodb.update(params).promise();
-    console.log("Credits updated successfully:", result);
-  } catch (error) {
-    console.error("Error updating credits:", error);
+async function updateUserCredits(customerId: string, amount: number): Promise<void> {
+    let modifiedAmount = amount / 100;
+    console.log("Amount: ", modifiedAmount);
+    const amountMapping: { [key: string]: number } = {
+      "5": 5,
+      "25": 40,
+      "49": 99,
+    };
+    const credits = amountMapping[modifiedAmount.toString()] || 0; // Ensure credits fallbacks to 0 if not found
+    console.log(credits);
+    const params: UpdateItemCommandInput = {
+      TableName: "Users",
+      Key: {
+        ClerkID: { S: customerId },
+      },
+      UpdateExpression: "SET Credits = Credits + :val",
+      ExpressionAttributeValues: {
+        ":val": { N: credits.toString() },
+      },
+      ReturnValues: "UPDATED_NEW",
+    };
+  
+    try {
+      const command = new UpdateItemCommand(params);
+      const result = await dynamodb.send(command);
+      console.log("Credits updated successfully:", result);
+    } catch (error) {
+      console.error("Error updating credits:", error);
+    }
   }
-}
