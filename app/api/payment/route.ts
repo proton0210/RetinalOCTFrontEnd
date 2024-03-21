@@ -51,7 +51,8 @@ export async function POST(request: Request) {
     success_url: "http://localhost:3000",
     cancel_url: "http://localhost:3000",
     metadata: {
-      userId: clerkId, // Pass the Clerk ID as part of the session metadata
+      userId: clerkId, // Pass the Clerk ID as part of the session metadata\
+      name: "John Doe",
     },
   });
 
