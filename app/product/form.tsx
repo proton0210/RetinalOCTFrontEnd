@@ -9,10 +9,11 @@ import { Button } from "@/components/ui/button";
 
 type uploadFormProps = {
   ClerkID: string;
+  credits: number;
 };
 const initialState = { status: "", message: "" };
 
-export function UploadForm({ ClerkID }: uploadFormProps) {
+export function UploadForm({ ClerkID, credits }: uploadFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [state, formAction] = useFormState(uploadFileWrapper, initialState);
 
@@ -42,7 +43,7 @@ export function UploadForm({ ClerkID }: uploadFormProps) {
           <Button
             type="submit"
             className="primary-gradient w-[120px] h-10 font-semibold font-sans text-white rounded-md hover:shadow-md cursor-pointer hover:shadow-indigo-500/50"
-            disabled={isSubmitting}
+            disabled={isSubmitting || credits === 0}
           >
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
