@@ -6,6 +6,7 @@ import axios from "axios";
 import { Price } from "@/types";
 import { Button } from "./ui/button";
 import { auth } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function Pricing({ clerkId }: { clerkId: string }) {
   const [prices, setPrices] = useState([]);
@@ -40,6 +41,11 @@ export default function Pricing({ clerkId }: { clerkId: string }) {
   return (
     <div className="bg-white py-24 sm:py-32  font-sans">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="absolute top-5 left-5">
+          <Link href={`/product`} className="text-indigo-500">
+            Back
+          </Link>
+        </div>
         <div className="mx-auto max-w-4xl sm:text-center">
           <h2 className="text-base font-semibold leading-7 text-indigo-600">
             Pricing
