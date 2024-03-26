@@ -5,15 +5,16 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Price } from "@/types";
 import { Button } from "./ui/button";
+import { auth } from "@clerk/nextjs";
 
-export default function Pricing() {
+export default function Pricing({ clerkId }: { clerkId: string }) {
   const [prices, setPrices] = useState([]);
 
   useEffect(() => {
-    fetchPrices();
+    fetchPricesAndCredits();
   }, []);
 
-  const fetchPrices = async () => {
+  const fetchPricesAndCredits = async () => {
     const { data } = await axios.get("/api/getproducts");
     setPrices(data);
     console.log(data);
