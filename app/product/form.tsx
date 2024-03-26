@@ -30,7 +30,7 @@ export function UploadForm({ ClerkID, credits }: uploadFormProps) {
       setIsSubmitting(false);
       setTimeout(() => {
         window.location.reload();
-      }, 4000);
+      }, 7000);
     }
   };
 
