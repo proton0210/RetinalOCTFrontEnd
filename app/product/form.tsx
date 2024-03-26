@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 
 type uploadFormProps = {
   ClerkID: string;
@@ -17,7 +16,6 @@ const initialState = { status: "", message: "" };
 export function UploadForm({ ClerkID, credits }: uploadFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [state, formAction] = useFormState(uploadFileWrapper, initialState);
-  const router = useRouter();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     setIsSubmitting(true);
     e.preventDefault();
@@ -30,7 +28,9 @@ export function UploadForm({ ClerkID, credits }: uploadFormProps) {
       console.error("Error uploading file:", error);
     } finally {
       setIsSubmitting(false);
-      router.refresh();
+      setTimeout(() => {
+        window.location.reload();
+      }, 4000);
     }
   };
 
@@ -48,9 +48,6 @@ export function UploadForm({ ClerkID, credits }: uploadFormProps) {
             disabled={isSubmitting || credits === 0}
           >
             {isSubmitting ? "Submitting..." : "Submit"}
-            {credits === 0 && (
-              <span className="text-red-500">No credits left</span>
-            )}
           </Button>
         </div>
         {state?.status && (
@@ -59,6 +56,9 @@ export function UploadForm({ ClerkID, credits }: uploadFormProps) {
           </div>
         )}
       </form>
+      {credits === 0 ? (
+        <div className="text-red-300 font-sans">You have no credits left</div>
+      ) : null}
     </div>
   );
 }

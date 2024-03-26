@@ -59,7 +59,10 @@ async function uploadFile(prevState: any, formData: any, ClerkID: string) {
     await uploadFileToS3(buffer, fileName);
 
     revalidatePath("/product");
-    return { status: "success", message: "File has been uploaded." };
+    return {
+      status: "success",
+      message: "File has been uploaded.Please check your Email",
+    };
   } catch (error) {
     return { status: "error", message: "Failed to upload file." };
   }
