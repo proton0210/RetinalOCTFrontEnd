@@ -1,7 +1,6 @@
 import { clerkClient } from "@clerk/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import AWS from "aws-sdk";
 import { DynamoDBClient, UpdateItemCommand, UpdateItemCommandInput } from "@aws-sdk/client-dynamodb";
 
 const dynamodb = new DynamoDBClient({
